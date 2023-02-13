@@ -1,0 +1,33 @@
+
+DB_NAME = blogs
+file consume the following api (consume.html)
+
+--------------------------------------------------------------------------
+read all posts (GET) => http://localhost/traversy_rest_api/api/posts/read.php
+
+read single post (GET) => http://localhost/traversy_rest_api/api/posts/read_single.php?id=[value]
+
+create post (POST) => http://localhost/traversy_rest_api/api/posts/create.php
+send with this link json data of post like this:
+{
+"title" : "test",
+"body" : "test",
+"author" : "test",
+"category_id" : 1
+}
+
+update post (PUT) => http://localhost/traversy_rest_api/api/posts/update.php
+send with this link json data of post like this:
+{
+"id" : 27
+"title" : "test",
+"body" : "test",
+"author" : "test",
+"category_id" : 1
+}
+
+delete post (DELETE) => http://localhost/traversy_rest_api/api/posts/delete.php
+send with this link json data of post like this:
+{
+"id" : 27
+}

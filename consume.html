@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Api Manager</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+</head>
+<body>
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <a class="navbar-brand" href="#">Blog Manager</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#">Home
+              </a>
+            </li>
+          </ul>
+
+
+        </div>
+      </nav>
+
+
+      <div class="jumbotron">
+          <div class="row">
+              <div class="col-md-6">
+                <h1 class="display-3">Add Post</h1>
+                <form action="" id="postForm">
+                    <input type="hidden" id="id">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="title" placeholder="Enter Post Title">
+                    </div>
+
+                    <div class="form-group">
+                        <textarea class="form-control" id="body" rows="3" placeholder="Enter Post Body"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="author" placeholder="Enter Post Author">
+                    </div>
+
+                    <div class="form-group">
+                        <select name="categories" id="categories" class="form-control">
+                            
+                        </select>
+                    </div>
+
+                    <input type="submit" id="add" value="add" class="btn btn-primary">
+                    <input type="submit" id="update" value="update" class="btn btn-primary">
+
+                </form>
+              </div>
+              <div class="col-md-6">
+                <h1 class="display-3">Our Posts</h1>
+                <ul class="list-group" id="posts"></ul>
+              </div>
+
+          </div>
+        
+      </div>
+
+
+    <script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+  <script>
+      $(document).ready(function(){
+
+        getPosts();
+        getCategories();
+
+        //when edit link clicked
+        $('body').on('click' , '.editLink' , function(e){
+            e.preventDefault();
+            let id = $(this).data('id');
+            getOnePost(id);
+        });
+
+
+
+        // //when delete link clicked
+        $('body').on('click' , '.deleteLink' , function(e){
+            e.preventDefault();
+            let id = $(this).data('id');
+            deletePost(id);
+        });
+
+        //when add form submitted
+        $('#add').on('click' , function(e){
+            e.preventDefault();
+            let title = $('#title').val();
+            let body = $('#body').val();
+            let author = $('#author').val();
+            let category = $('#categories').val();
+            addPost(title , body , author, category);
+        })
+
+        //when update form submitted
+        $('#update').on('click' , function(e){
+            e.preventDefault();
+            let id = $('#id').val();
+            let title = $('#title').val();
+            let body = $('#body').val();
+            let author = $('#author').val();
+            let category = $('#categories').val();
+            updatePost(id , title , body, author, category);
+        })
+
+
+
+
+        //delete post using api (both comming functions work)
+        
+        //  function deletePost(id){
+        //     $.ajax({
+        //         type:'POST',
+        //         contentType: 'application/json',
+        //         url:'http://localhost/traversy_rest_api/api/posts/delete.php',
+        //         data: JSON.stringify({_method:'DELETE', "id": id})
+        //     }).done(function(){
+        //         alert('Post removed');
+        //         location.reload();
+        //     });
+
+        // }
+
+         // delete post using api
+        function deletePost(id){
+            $.ajax({
+                type:'DELETE',
+                contentType: 'application/json',
+                url:'http://localhost/traversy_rest_api/api/posts/delete.php',
+                data: JSON.stringify({ "id": id})
+            }).done(function(){
+                alert('Post removed');
+                location.reload();
+            });
+
+        }
+
+        // update post using api
+        function updatePost(id , title , body, author, category){
+            $.ajax({
+                type:'PUT',
+                contentType: 'application/json',
+                url:'http://localhost/traversy_rest_api/api/posts/update.php',
+                data: JSON.stringify({ "id": id , "title" : title , "body" : body , "author" : author , "category_id" : category})
+            }).done(function(){
+                alert('Post updated');
+                location.reload();
+            });
+
+        }
+
+
+         //insert post using api
+        function addPost(title , body , author , category){
+
+            $.ajax({
+                type:'POST',
+                contentType: 'application/json',
+                url:'http://localhost/traversy_rest_api/api/posts/create.php',
+                data: JSON.stringify({ "title" : title , "body" : body , "author" : author , "category_id" : category})
+            }).done(function(post){
+                alert('Post added');
+                location.reload();
+            });
+
+        }
+
+        
+        //get categories using api
+        function getCategories(){
+            $.ajax({
+                url:'http://localhost/traversy_rest_api/api/categories/read.php',
+            }).done(function(categories){
+                let output = '';
+                // console.log(data);
+                $.each(categories , function(key , category){
+                    output += `
+                    <option value="${category.id}">
+                        ${category.name}
+                    </option>
+                    `;
+                });
+
+                 $('#categories').append(output);
+            });
+        }
+
+        //get posts using api
+        function getPosts(){
+            $.ajax({
+                url:'http://localhost/traversy_rest_api/api/posts/read.php',
+            }).done(function(posts){
+                let output = '';
+                let data = posts['data'];
+                // console.log(data);
+                $.each(data , function(key , post){
+                    output += `
+                    <li class="list-group-item">
+                        <strong>${post.title}: </strong>
+                        <p>${post.body}</p> 
+                        <a class="btn btn-danger deleteLink" data-id="${post.id}">Delete</a>
+                        <a class="btn btn-info editLink" data-id="${post.id}">Edit</a>
+
+                    </li>
+                    `;
+                });
+
+                 $('#posts').append(output);
+            });
+        }
+
+
+        
+        //get one post using api
+        function getOnePost(id){
+            $.ajax({
+                url:'http://localhost/traversy_rest_api/api/posts/read_single.php?id=' + id,
+            }).done(function(post){
+                $('#postForm #id').val(post.id);
+                $('#postForm #title').val(post.title);
+                $('#postForm #body').val(post.body);
+                $('#postForm #author').val(post.author);
+                $('#postForm #categories').val(post.category_id);
+            });
+        }
+
+      });
+  </script>
+</body>
+</html>
